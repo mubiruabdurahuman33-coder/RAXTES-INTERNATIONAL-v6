@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin v25 - RAXTES</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0e1a;color:#fff;font-family:Arial;padding:15px;padding-bottom:100px}
+.topBar{background:linear-gradient(90deg,#00e676,#00c853);padding:14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
+.stat{background:#111a2e;border:1px solid #1a2236;border-radius:12px;padding:12px;text-align:center}
+.stat h2{color:#00e676}
+.box{background:#111a2e;border:1px solid #1a2236;border-radius:12px;padding:15px;margin-bottom:12px}
+.box h3{color:#00e676;margin-bottom:8px;font-size:14px}
+input,button{width:100%;padding:11px;border-radius:10px;border:1px solid #1a2236;background:#0a0e1a;color:#fff;margin:4px 0;font-size:13px}
+button{background:#00e676;color:#000;border:none;font-weight:900;cursor:pointer}
+button.red{background:#ff2a00;color:#fff}
+.movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+.movie{background:#0a0e1a;border-radius:10px;overflow:hidden;border:1px solid #1a2236}
+.movie img{width:100%;height:120px;object-fit:cover}
+.movie .info{padding:6px;font-size:10px}
+.bottomNav{position:fixed;bottom:0;left:0;width:100%;background:#111a2e;border-top:1px solid #1a2236;display:flex;justify-content:space-around;padding:12px 0}
+.navItem{color:#888;font-size:11px;cursor:pointer}
+.navItem.active{color:#00e676}
+</style>
+</head>
+<body>
+
+<div class="topBar"><div><b>🔧 RAXTES Admin v25</b><br><span style="font-size:11px;color:#000">Manage Movies + Subscriptions + Money</span></div><button onclick="window.open('index.html?v=25','_blank')" style="width:auto;padding:8px 14px;background:#000;color:#00e676">👁 View Site</button></div>
+
+<div class="stats">
+<div class="stat"><h2 id="total">7</h2><p style="font-size:10px">Total Movies</p></div>
+<div class="stat"><h2 id="prem">0</h2><p style="font-size:10px">Premium Users</p></div>
+<div class="stat"><h2>0 Ads</h2><p style="font-size:10px">Safe Mode</p></div>
+<div class="stat"><h2 id="dl">0</h2><p style="font-size:10px">Downloads</p></div>
+</div>
+
+<div class="box">
+<h3>💰 Money Receiving Setup (SAFE - No card in code)</h3>
+<p style="font-size:11px;color:#888;margin-bottom:8px">Your card 5316... is NOT in code. Add payment link below to receive money safely.</p>
+<input id="payLink" placeholder="Paste Flutterwave / MoMo Pay Link here e.g. https://flutterwave.com/pay/raxtes">
+<input id="momo" placeholder="MTN MoMo Merchant Code e.g. 123456">
+<button onclick="savePay()">💾 Save Payment Method - Receive Money</button>
+<div id="payStatus" style="font-size:11px;color:#00e676;margin-top:6px"></div>
+</div>
+
+<div class="box">
+<h3>➕ Add Movie / Anime (Auto categorizes)</h3>
+<input id="aTitle" placeholder="Title e.g. Avengers Doomsday 2026">
+<input id="aId" placeholder="TMDB ID e.g. 299534">
+<input id="aYear" placeholder="Year e.g. 2026">
+<input id="aType" placeholder="Type: movie / db / anime / tv / upcoming">
+<input id="aImg" placeholder="Image URL">
+<button onclick="addM()">➕ Add Movie</button>
+</div>
+
+<div class="box">
+<h3>📋 Manage Movies - Same Layout as Public</h3>
+<input id="searchA" placeholder="Search to delete..." oninput="searchA()">
+<div id="movies" class="movies"></div>
+</div>
+
+<div class="box">
+<h3>🔒 Premium Users List</h3>
+<div id="premiumList" style="font-size:11px;color:#888">No premium users yet. When user subscribes, they appear here.</div>
+<button class="red" onclick="if(confirm('Reset premium?')){localStorage.removeItem('raxtes_premium');alert('Reset done')}">Reset Premium Demo</button>
+</div>
+
+<div class="bottomNav">
+<div class="navItem active">🏠 Admin</div>
+<div class="navItem" onclick="window.open('index.html?v=25','_blank')">🎬 Site</div>
+<div class="navItem" onclick="alert('Money: Check Flutterwave dashboard')">💰 Money</div>
+<div class="navItem" onclick="alert('Settings saved locally')">⚙️ Settings</div>
+</div>
+
+<script>
+let DATA=[
+{t:"Hellfire 1080P",c:"movie",id:"299534",y:2024},{t:"Peaky Blinders",c:"tv",id:"60574",y:2024},{t:"Dragon Ball Beerus",c:"db",id:"149871",y:2013},{t:"One Piece",c:"anime",id:"37854",y:1999}
+];
+let cur=[...DATA];
+function render(){
+ document.getElementById('movies').innerHTML=cur.map((m,i)=>`<div class="movie"><img src="https://via.placeholder.com/200x300/00e676/000?text=${encodeURIComponent(m.t)}"><div class="info">${m.t}<br>${m.c} • ${m.y}<br><button class="red" onclick="del(${i})" style="padding:4px;margin-top:4px;font-size:9px">Delete</button></div></div>`).join('');
+ document.getElementById('total').innerText=cur.length;
+ document.getElementById('dl').innerText=JSON.parse(localStorage.getItem('raxtes_dls')||'[]').length;
+ document.getElementById('prem').innerText=localStorage.getItem('raxtes_premium')==='yes'?'1':'0';
+ let pay=localStorage.getItem('raxtes_paylink')||''; if(pay) document.getElementById('payStatus').innerText='✅ Payment link saved: '+pay;
+ let premList=localStorage.getItem('raxtes_premium')==='yes'?'<div style="background:#0a0e1a;padding:8px;border-radius:8px;margin-top:6px">👤 Premium User: Demo - 720p/1080p unlocked</div>':'No premium users yet';
+ document.getElementById('premiumList').innerHTML=premList;
+}
+function addM(){
+ let t=document.getElementById('aTitle').value, id=document.getElementById('aId').value, y=parseInt(document.getElementById('aYear').value)||2025, tp=document.getElementById('aType').value|| (y>=2025?'upcoming':'movie');
+ if(!t||!id){alert('Need Title + ID');return;}
+ cur.push({t,c:tp,id,y}); render(); alert(`Added ${t} as ${tp} - Now update index.html DATA array with same entry`);
+}
+function searchA(){let q=document.getElementById('searchA').value.toLowerCase();cur=q?DATA.filter(m=>m.t.toLowerCase().includes(q)):[...DATA];render();}
+function del(i){if(confirm('Delete '+cur[i].t+'?')){cur.splice(i,1);render();}}
+function savePay(){
+ let link=document.getElementById('payLink').value, momo=document.getElementById('momo').value;
+ if(!link && !momo){alert('Paste payment link');return;}
+ localStorage.setItem('raxtes_paylink',link);
+ localStorage.setItem('raxtes_momo',momo);
+ document.getElementById('payStatus').innerText='✅ Saved! Money from subscriptions will go to: '+(link||momo);
+ alert('✅ Payment method saved! Now when users click Subscribe, they pay to: '+ (link||'MoMo '+momo)+'\n\nYour card 5316... is SAFE - not exposed in code. Check Flutterwave/MoMo dashboard to see money.');
+}
+render();
+</script>
+</body>
+</html>
