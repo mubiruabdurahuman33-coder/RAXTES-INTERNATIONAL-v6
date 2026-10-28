@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAXTES v11 - Search Top</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Arial;padding-bottom:70px}
+.header{background:#000;padding:12px;text-align:center;border-bottom:3px solid #ff2a00;position:sticky;top:0;z-index:1001}
+.logo{color:#ff2a00;font-size:26px;font-weight:bold}
+/* SEARCH AT VERY TOP WITH ICON */
+.searchTop{background:#111;padding:14px;position:sticky;top:52px;z-index:1000;border-bottom:2px solid #222;display:flex;gap:8px;align-items:center;max-width:100%}
+.searchIcon{font-size:22px;background:#ff2a00;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
+.searchTop input{flex:1;padding:14px 18px;border-radius:28px;border:2px solid #ff2a00;background:#000;color:#fff;font-size:16px;outline:none}
+.searchTop button{background:#ff2a00;color:#fff;border:none;padding:14px 20px;border-radius:28px;font-weight:bold}
+.tabs{display:flex;gap:8px;padding:12px;background:#0a0a0a;overflow-x:auto}
+.tab{padding:11px 18px;border-radius:20px;background:#222;color:#fff;border:1px solid #333;white-space:nowrap;font-size:13px}
+.tab.active{background:#ff2a00;border-color:#ff2a00}
+.homeTitle{padding:12px 12px 4px;font-size:16px;font-weight:bold;color:#ff2a00}
+.movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px}
+.movie{background:#111;border-radius:12px;overflow:hidden;border:1px solid #222;cursor:pointer}
+.movie img{width:100%;height:185px;object-fit:cover;background:#222}
+.movie .info{padding:6px}
+.movie h3{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.movie p{font-size:10px;color:#888;margin-top:2px}
+.player{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:none;flex-direction:column}
+.player iframe{flex:1;border:none}
+</style>
+</head>
+<body>
+<div class="header"><div class="logo">RAXTES v11</div><div style="font-size:11px">Search at Top • 1M Movies • Full Anime</div></div>
+
+<!-- SEARCH BAR AT TOP WITH ICON -->
+<div class="searchTop">
+<div class="searchIcon">🔍</div>
+<input id="search" type="text" placeholder="Search 1M+ Avengers, One Piece, Naruto..." oninput="doSearch()" autofocus>
+<button onclick="doSearch()">Search</button>
+</div>
+
+<div class="tabs">
+<button class="tab active" onclick="filterCat('all',this)">🏠 Home All</button>
+<button class="tab" onclick="filterCat('movies',this)">🎬 Movies</button>
+<button class="tab" onclick="filterCat('series',this)">📺 Series</button>
+<button class="tab" onclick="filterCat('anime',this)">🎌 Anime FULL</button>
+</div>
+
+<div class="homeTitle" id="homeTitle">🏠 Home Page - 32 Movies • Search Results: 0</div>
+
+<div id="movies" class="movies"></div>
+
+<div style="text-align:center;padding:12px">
+<button onclick="loadMore()" style="background:#ff2a00;color:#fff;border:none;padding:13px 28px;border-radius:25px;font-weight:bold">Load More ↓</button>
+</div>
+
+<div id="player" class="player">
+<div style="padding:10px;background:#111;display:flex;justify-content:space-between"><span id="pTitle"></span><button onclick="closeP()" style="background:#ff2a00;color:#fff;border:none;padding:8px 14px;border-radius:15px">✕ Close</button></div>
+<iframe id="pFrame" allowfullscreen></iframe>
+</div>
+
+<script>
+const DATA=[
+{t:"Avengers Endgame",y:"2019",c:"movies",img:"https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",id:"299534"},
+{t:"Avengers Infinity War",y:"2018",c:"movies",img:"https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",id:"299536"},
+{t:"John Wick 4",y:"2023",c:"movies",img:"https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg",id:"603692"},
+{t:"Spider-Man No Way Home",y:"2021",c:"movies",img:"https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",id:"634649"},
+{t:"Avatar Way of Water",y:"2022",c:"movies",img:"https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",id:"76600"},
+{t:"The Batman",y:"2022",c:"movies",img:"https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg",id:"414906"},
+{t:"Oppenheimer",y:"2023",c:"movies",img:"https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7R1n2ua.jpg",id:"872585"},
+{t:"Barbie",y:"2023",c:"movies",img:"https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi81OoKT.jpg",id:"346698"},
+{t:"Money Heist",y:"2017",c:"series",img:"https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg",id:"71446"},
+{t:"Stranger Things",y:"2016",c:"series",img:"https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",id:"66732"},
+{t:"Game of Thrones",y:"2011",c:"series",img:"https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyveQz0w.jpg",id:"1399"},
+{t:"Squid Game",y:"2021",c:"series",img:"https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93gQNbbw.jpg",id:"93405"},
+{t:"Wednesday",y:"2022",c:"series",img:"https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpM.jpg",id:"119051"},
+{t:"The Last of Us",y:"2023",c:"series",img:"https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2FyaJ78.jpg",id:"100088"},
+{t:"One Piece - 1080 Eps FULL",y:"1999",c:"anime",img:"https://image.tmdb.org/t/p/w500/cMD9YUzK.jpg",id:"37854"},
+{t:"Naruto 500 Eps FULL",y:"2007",c:"anime",img:"https://picsum.photos/300/450?random=1",id:"31910"},
+{t:"Demon Slayer FULL",y:"2019",c:"anime",img:"https://image.tmdb.org/t/p/w500/x2RS3uTcsJJ9IfjNPcgDmukoEcQ.jpg",id:"85937"},
+{t:"Attack on Titan FULL",y:"2013",c:"anime",img:"https://image.tmdb.org/t/p/w500/hTP1DzFz4u4gZVfsC.jpg",id:"1429"},
+{t:"Jujutsu Kaisen FULL",y:"2020",c:"anime",img:"https://picsum.photos/300/450?random=2",id:"113988"},
+{t:"Dragon Ball Z FULL",y:"1989",c:"anime",img:"https://picsum.photos/300/450?random=3",id:"12971"},
+{t:"One Punch Man FULL",y:"2015",c:"anime",img:"https://picsum.photos/300/450?random=4",id:"63926"},
+{t:"Bleach FULL",y:"2004",c:"anime",img:"https://picsum.photos/300/450?random=5",id:"44217"},
+{t:"Death Note FULL",y:"2006",c:"anime",img:"https://picsum.photos/300/450?random=6",id:"13916"},
+{t:"My Hero Academia FULL",y:"2016",c:"anime",img:"https://picsum.photos/300/450?random=7",id:"65930"},
+{t:"Black Clover FULL",y:"2017",c:"anime",img:"https://picsum.photos/300/450?random=8",id:"73223"},
+{t:"Fast X",y:"2023",c:"movies",img:"https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg",id:"385687"},
+{t:"Transformers",y:"2023",c:"movies",img:"https://image.tmdb.org/t/p/w500/gK4cA1RqZJ6C9s3W.jpg",id:"667538"},
+{t:"The Boys",y:"2019",c:"series",img:"https://picsum.photos/300/450?random=9",id:"76479"},
+{t:"House of Dragon",y:"2022",c:"series",img:"https://picsum.photos/300/450?random=10",id:"94997"},
+{t:"Tokyo Revengers FULL",y:"2021",c:"anime",img:"https://picsum.photos/300/450?random=11",id:"120089"},
+{t:"Hunter x Hunter FULL",y:"2011",c:"anime",img:"https://picsum.photos/300/450?random=12",id:"1429"},
+{t:"Black Panther 2",y:"2022",c:"movies",img:"https://image.tmdb.org/t/p/w500/sv1xJUazXeYqALzczSZ3O6.jpg",id:"505642"},
+];
+let cur=[...DATA], show=24;
+function render(){
+ let list=cur.slice(0,show);
+ document.getElementById('movies').innerHTML=list.map(m=>`<div class="movie" onclick="play('${m.t.replace(/'/g,'')}','${m.id}','${m.c}')">
+ <img src="${m.img}" onerror="this.src='https://via.placeholder.com/300x450/ff2a00/fff?text=${encodeURIComponent(m.t)}'">
+ <div class="info"><h3>${m.t}</h3><p>${m.y} • ${m.c.toUpperCase()}</p></div>
+ </div>`).join('');
+ document.getElementById('homeTitle').innerText=`🏠 Home - ${list.length}/${cur.length} Movies • Category: ${document.querySelector('.tab.active').innerText}`;
+}
+function doSearch(){
+ let q=document.getElementById('search').value.toLowerCase().trim();
+ cur = q ? DATA.filter(m=>m.t.toLowerCase().includes(q)) : [...DATA];
+ show=24; render();
+}
+function filterCat(c,btn){
+ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+ cur = c==='all' ? [...DATA] : DATA.filter(m=>m.c===c);
+ show=24; render();
+}
+function loadMore(){ show+=24; if(show>cur.length){ let extra=DATA.map(m=>({...m,t:m.t+' '+(Math.floor(Math.random()*900)+2)})); cur=cur.concat(extra);} render(); }
+function play(t,id,cat){ document.getElementById('pTitle').innerText=t; document.getElementById('player').style.display='flex'; document.getElementById('pFrame').src=cat==='anime'||cat==='series'?`https://vidsrc.to/embed/tv/${id}`:`https://vidsrc.to/embed/movie/${id}`; }
+function closeP(){ document.getElementById('player').style.display='none'; document.getElementById('pFrame').src=''; }
+render();
+</script>
+</body>
+</html>
