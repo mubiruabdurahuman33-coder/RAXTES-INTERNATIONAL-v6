@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>RAXTES Admin - 0755207966</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0e1a;color:#fff;font-family:Arial;padding:20px}input{width:100%;padding:14px;border-radius:10px;border:1px solid #1a2236;background:#111a2e;color:#fff;margin:8px 0}.btn{width:100%;padding:14px;border-radius:12px;border:none;font-weight:900;margin:6px 0;cursor:pointer}.card{background:#111a2e;border:1px solid #1a2236;border-radius:12px;padding:15px;margin:12px 0}.stat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}.statBox{background:#111a2e;border:1px solid #1a2236;border-radius:12px;padding:15px;text-align:center}</style></head><body>
+<div style="display:flex;justify-content:space-between;align-items:center"><h2>🔐 RAXTES Admin</h2><div style="background:#00e676;color:#000;padding:6px 12px;border-radius:12px;font-size:10px;font-weight:900">OWNER: 0755207966</div></div>
+<div id="loginBox" class="card" style="max-width:400px;margin:40px auto;text-align:center">
+<h3>Admin Login</h3><p style="font-size:11px;color:#888;margin:8px 0">Enter your admin password to access earnings</p>
+<input id="pass" type="password" placeholder="Password: 755207966">
+<button class="btn" style="background:#00e676;color:#000" onclick="login()">Unlock Admin</button>
+<div style="font-size:10px;color:#888;margin-top:10px">Hint: your MoMo number without 0 = 755207966</div>
+</div>
+<div id="adminBox" style="display:none">
+<div class="stat">
+<div class="statBox"><div style="font-size:22px;font-weight:900;color:#00e676" id="totalUsers">0</div><div style="font-size:10px;color:#888">Premium Users</div></div>
+<div class="statBox"><div style="font-size:22px;font-weight:900;color:#ffcc00" id="totalEarn">0 UGX</div><div style="font-size:10px;color:#888">Estimated Earn</div></div>
+<div class="statBox"><div style="font-size:22px;font-weight:900;color:#fff" id="dlStats">0</div><div style="font-size:10px;color:#888">Downloads</div></div>
+</div>
+<div class="card"><h4>💰 MoMo Payments - To 0755207966</h4>
+<div style="font-size:11px;color:#888;margin:8px 0">To check real money: Dial *185*7# (Airtel) or *165*0# (MTN)</div>
+<button class="btn" style="background:#25D366;color:#fff" onclick="window.open('https://wa.me/256755207966?text=Check%20my%20MoMo%20balance','_blank')">💬 Open WhatsApp Business</button>
+</div>
+<div class="card"><h4>👥 Premium Users List (Local Demo)</h4><div id="userList" style="font-size:11px"></div></div>
+<div class="card"><h4>⚙️ Actions</h4>
+<button class="btn" style="background:#ffcc00;color:#000" onclick="activateDemo()">+ Add Test Premium User</button>
+<button class="btn" style="background:#1a2236;color:#fff" onclick="clearUsers()">Clear Demo List</button>
+<button class="btn" style="background:#00e676;color:#000" onclick="window.open('./','_blank')">Go to Public Website</button>
+</div>
+<div class="card" style="border:1px solid #00e676"><h4>📢 Share Link</h4><div style="font-size:11px;background:#000;padding:10px;border-radius:8px;margin:8px 0;word-break:break-all">https://mubiruabdurahuman33-coder.github.io/RAXTES-INTERNATIONAL-v6/?v=31</div><button class="btn" style="background:#111a2e;color:#fff;border:1px solid #1a2236" onclick="navigator.clipboard.writeText('https://mubiruabdurahuman33-coder.github.io/RAXTES-INTERNATIONAL-v6/?v=31');alert('Copied!')">Copy Link</button></div>
+</div>
+<script>
+let users=JSON.parse(localStorage.getItem('raxtes_admin_users')||'[]');
+function login(){let p=document.getElementById('pass').value;if(p==='755207966'||p==='0755207966'){document.getElementById('loginBox').style.display='none';document.getElementById('adminBox').style.display='block';render();}else{alert('Wrong! Password is 755207966');}}
+function render(){document.getElementById('totalUsers').innerText=users.length;document.getElementById('totalEarn').innerText=(users.length*11000)+' UGX';document.getElementById('dlStats').innerText=(JSON.parse(localStorage.getItem('raxtes_dls')||'[]').length);let html=users.length?users.map((u,i)=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a2236"><div><b>${u.email}</b><br><span style="color:#888">${u.phone} • ${u.tx}</span></div><div style="color:#00e676">${u.date}</div></div>`).join(''):'<div style="text-align:center;color:#888;padding:20px">No premium yet - When users send to 0755207966 and click WhatsApp, you add them manually here or use demo</div>';document.getElementById('userList').innerHTML=html;}
+function activateDemo(){let email=prompt('User email?')||'test@gmail.com';let phone=prompt('User MoMo phone?')||'07xxxxxxx';let tx=prompt('TxID?')||'TX'+Date.now();users.unshift({email,phone,tx,date:new Date().toLocaleDateString()});localStorage.setItem('raxtes_admin_users',JSON.stringify(users));render();}
+function clearUsers(){if(confirm('Clear all?')){users=[];localStorage.setItem('raxtes_admin_users',JSON.stringify(users));render();}}
+</script></body></html>
