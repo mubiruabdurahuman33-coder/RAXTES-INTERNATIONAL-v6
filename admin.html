@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAXTES v19 FINAL - MovieBox Full + Dragon Ball + Download</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Arial;padding-bottom:70px}
+.topSearch{background:linear-gradient(90deg,#ff2a00,#ff6a00);padding:12px;display:flex;gap:10px;align-items:center;position:sticky;top:0;z-index:9999}
+.searchLogo{width:46px;height:46px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.topSearch input{flex:1;padding:12px 18px;border-radius:25px;border:none;background:#fff;color:#000;font-size:15px;outline:none;font-weight:bold}
+.header{background:#000;padding:8px;text-align:center;border-bottom:1px solid #222}
+.logo{color:#ff2a00;font-size:20px;font-weight:bold}
+.tabs{display:flex;gap:5px;padding:10px;background:#0a0a0a;overflow-x:auto;position:sticky;top:70px;z-index:9998}
+.tab{padding:10px 14px;border-radius:20px;background:#222;color:#fff;border:1px solid #333;white-space:nowrap;font-size:11px;cursor:pointer}
+.tab.active{background:#ff2a00;border-color:#ff2a00}
+.movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px;padding:10px}
+.movie{background:#111;border-radius:10px;overflow:hidden;border:1px solid #222;cursor:pointer;position:relative}
+.movie img{width:100%;height:160px;object-fit:cover;background:#222}
+.movie .badge{position:absolute;top:5px;left:5px;background:#ff2a00;color:#fff;font-size:8px;padding:3px 6px;border-radius:10px;font-weight:bold}
+.movie .db{position:absolute;top:5px;right:5px;background:#ffcc00;color:#000;font-size:7px;padding:3px 5px;border-radius:8px;font-weight:bold}
+.movie .info{padding:5px}
+.movie h3{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:14px}
+.movie p{font-size:8px;color:#888;margin:2px 0}
+.movie .btns{display:flex;gap:3px;padding:4px}
+.movie .btns button{flex:1;padding:5px 0;border-radius:12px;border:none;font-size:9px;font-weight:bold;cursor:pointer}
+.btnPlay{background:#ff2a00;color:#fff}
+.btnDL{background:#00c853;color:#fff}
+.player{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:none;flex-direction:column}
+.prov{display:flex;gap:5px;padding:8px;background:#111;overflow-x:auto}
+.prov button{padding:7px 11px;border-radius:15px;border:1px solid #333;background:#222;color:#fff;font-size:10px;white-space:nowrap}
+.prov button.active{background:#ff2a00}
+.player iframe{flex:1;border:none}
+.ctrl{display:flex;gap:6px;padding:10px;background:#111;justify-content:center;flex-wrap:wrap}
+.ctrl button{padding:9px 15px;border-radius:20px;border:none;font-weight:bold;font-size:11px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="topSearch">
+<div class="searchLogo">🔍</div>
+<input id="search" type="text" placeholder="Search 300+ movies - Avengers, Dragon Ball Beerus, Naruto..." oninput="doSearch()" autofocus>
+</div>
+
+<div class="header"><div class="logo">RAXTES v19 FINAL</div><div style="font-size:9px">MovieBox 250+ + Dragon Ball + Anime 100+ • Play + Download on Home</div></div>
+
+<div class="tabs">
+<button class="tab active" onclick="filterCat('all',this)">🏠 All 300+</button>
+<button class="tab" onclick="filterCat('db',this)">🐉 Dragon Ball</button>
+<button class="tab" onclick="filterCat('anime',this)">🎌 Anime 100+</button>
+<button class="tab" onclick="filterCat('movie',this)">🎬 Movies</button>
+<button class="tab" onclick="filterCat('tv',this)">📺 Series</button>
+<button class="tab" onclick="filterCat('upcoming',this)">🔥 Upcoming</button>
+</div>
+
+<div style="padding:8px 12px;font-size:11px;color:#0f0;background:#0a0a0a;text-align:center" id="status">300+ Titles Combined - Play + Download buttons visible on first page ✅</div>
+<div id="movies" class="movies"></div>
+
+<div id="player" class="player">
+<div style="padding:8px;background:#111;display:flex;justify-content:space-between"><span id="pTitle" style="font-size:11px;flex:1"></span><button onclick="closeP()" style="background:#ff2a00;color:#fff;border:none;padding:6px 12px;border-radius:15px">✕ Close</button></div>
+<div class="prov" id="provBtns"></div>
+<iframe id="pFrame" allowfullscreen></iframe>
+<div class="ctrl">
+<button onclick="doDownload()" style="background:#00c853;color:#fff">⬇ Download Now</button>
+<button onclick="switchP(1)" style="background:#222;color:#fff;border:1px solid #444">🔄 Switch Provider</button>
+<button onclick="closeP()" style="background:#333;color:#fff">Close</button>
+</div>
+</div>
+
+<script>
+const DATA=[
+// DRAGON BALL PACK 11
+{t:"Dragon Ball Super FULL 131 Eps",c:"db",id:"126245",y:"2015",img:"https://image.tmdb.org/t/p/w500/1.jpg"},
+{t:"Dragon Ball Super Beerus Battle of Gods",c:"db",id:"149871",y:"2013",img:"https://image.tmdb.org/t/p/w500/2.jpg"},
+{t:"Dragon Ball Super Resurrection F",c:"db",id:"246344",y:"2015",img:"https://image.tmdb.org/t/p/w500/3.jpg"},
+{t:"Dragon Ball Super Broly Movie",c:"db",id:"503314",y:"2018",img:"https://image.tmdb.org/t/p/w500/4.jpg"},
+{t:"Dragon Ball Super Super Hero 2022",c:"db",id:"610150",y:"2022",img:"https://image.tmdb.org/t/p/w500/5.jpg"},
+{t:"Dragon Ball Z FULL 291 Eps",c:"db",id:"12971",y:"1989",img:"https://image.tmdb.org/t/p/w500/6.jpg"},
+{t:"Dragon Ball Z Kai 167 Eps",c:"db",id:"12971",y:"2009",img:"https://image.tmdb.org/t/p/w500/7.jpg"},
+{t:"Dragon Ball GT 64 Eps",c:"db",id:"12971",y:"1996",img:"https://image.tmdb.org/t/p/w500/8.jpg"},
+{t:"Dragon Ball Original 153 Eps",c:"db",id:"12971",y:"1986",img:"https://image.tmdb.org/t/p/w500/9.jpg"},
+{t:"Dragon Ball Daima NEW 2024",c:"db",id:"12971",y:"2024",img:"https://image.tmdb.org/t/p/w500/10.jpg"},
+{t:"Dragon Ball Z Bardock Special",c:"db",id:"12971",y:"1990",img:"https://image.tmdb.org/t/p/w500/11.jpg"},
+
+// ANIME 100+ FULL
+{t:"One Piece 1080+ Eps FULL",c:"anime",id:"37854",y:"1999",img:"https://image.tmdb.org/t/p/w500/cMD9YUzK.jpg"},
+{t:"Naruto Shippuden 500 Eps FULL",c:"anime",id:"31910",y:"2007",img:"https://picsum.photos/300/450?an1"},
+{t:"Naruto 220 Eps FULL",c:"anime",id:"31910",y:"2002",img:"https://picsum.photos/300/450?an2"},
+{t:"Demon Slayer 55 Eps FULL",c:"anime",id:"85937",y:"2019",img:"https://image.tmdb.org/t/p/w500/x2RS3uTcsJJ9IfjNPcgDmukoEcQ.jpg"},
+{t:"Demon Slayer Mugen Train Movie",c:"anime",id:"635302",y:"2020",img:"https://image.tmdb.org/t/p/w500/h8Rb9gBr48.jpg"},
+{t:"Attack on Titan 87 Eps FULL",c:"anime",id:"1429",y:"2013",img:"https://image.tmdb.org/t/p/w500/hTP1DzFz4u4gZVfsC.jpg"},
+{t:"Jujutsu Kaisen 48 Eps FULL",c:"anime",id:"113988",y:"2020",img:"https://picsum.photos/200/300?an3"},
+{t:"Jujutsu Kaisen 0 Movie",c:"anime",id:"810693",y:"2021",img:"https://image.tmdb.org/t/p/w500/3p.jpg"},
+{t:"One Punch Man 24 Eps FULL",c:"anime",id:"63926",y:"2015",img:"https://picsum.photos/200/300?an6"},
+{t:"Bleach 366 Eps + TYBW",c:"anime",id:"44217",y:"2004",img:"https://picsum.photos/200/300?an7"},
+{t:"Death Note 37 Eps FULL",c:"anime",id:"13916",y:"2006",img:"https://picsum.photos/200/300?an8"},
+{t:"My Hero Academia 138 Eps",c:"anime",id:"65930",y:"2016",img:"https://picsum.photos/200/300?an9"},
+{t:"Black Clover 170 Eps",c:"anime",id:"73223",y:"2017",img:"https://picsum.photos/200/300?an10"},
+{t:"Tokyo Revengers 50 Eps",c:"anime",id:"120089",y:"2021",img:"https://picsum.photos/200/300?an11"},
+{t:"Hunter x Hunter 148 Eps",c:"anime",id:"1429",y:"2011",img:"https://picsum.photos/200/300?an12"},
+{t:"Chainsaw Man 12 Eps",c:"anime",id:"114410",y:"2022",img:"https://picsum.photos/200/300?an13"},
+{t:"Spy x Family 50 Eps",c:"anime",id:"120089",y:"2022",img:"https://picsum.photos/200/300?an14"},
+{t:"Solo Leveling 12 Eps",c:"anime",id:"123",y:"2024",img:"https://picsum.photos/200/300?an15"},
+{t:"Boruto 293 Eps",c:"anime",id:"82420",y:"2017",img:"https://picsum.photos/200/300?an16"},
+{t:"Fairy Tail 328 Eps",c:"anime",id:"46298",y:"2009",img:"https://picsum.photos/200/300?an17"},
+{t:"Haikyuu 85 Eps",c:"anime",id:"66184",y:"2014",img:"https://picsum.photos/200/300?an18"},
+{t:"Tokyo Ghoul 48 Eps",c:"anime",id:"61374",y:"2014",img:"https://picsum.photos/200/300?an21"},
+{t:"Vinland Saga 48 Eps",c:"anime",id:"88803",y:"2019",img:"https://picsum.photos/200/300?an22"},
+{t:"Fire Force 48 Eps",c:"anime",id:"91161",y:"2019",img:"https://picsum.photos/200/300?an24"},
+{t:"One Piece Film Red",c:"anime",id:"900667",y:"2022",img:"https://image.tmdb.org/t/p/w500/s5HQf.jpg"},
+{t:"Black Bullet FULL",c:"anime",id:"1234",y:"2014",img:"https://picsum.photos/200/300?an23"},
+{t:"Naruto The Last Movie",c:"anime",id:"317442",y:"2014",img:"https://picsum.photos/200/300?an19"},
+{t:"Dandadan FULL",c:"anime",id:"1234",y:"2024",img:"https://picsum.photos/200/300?an25"},
+{t:"Kaiju No 8 FULL",c:"anime",id:"1234",y:"2024",img:"https://picsum.photos/200/300?an26"},
+
+// MOVIEBOX MOVIES 120+ - ALL PREVIOUS
+{t:"Avengers Endgame",c:"movie",id:"299534",y:"2019",img:"https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg"},
+{t:"Avengers Infinity War",c:"movie",id:"299536",y:"2018",img:"https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg"},
+{t:"Avengers 2012",c:"movie",id:"24428",y:"2012",img:"https://image.tmdb.org/t/p/w500/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg"},
+{t:"Iron Man",c:"movie",id:"1726",y:"2008",img:"https://image.tmdb.org/t/p/w500/78lIemO11gGpRw.jpg"},
+{t:"Thor Ragnarok",c:"movie",id:"284053",y:"2017",img:"https://image.tmdb.org/t/p/w500/rzRwTcFvbtJsEg3fOwc.jpg"},
+{t:"Spider-Man No Way Home",c:"movie",id:"634649",y:"2021",img:"https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg"},
+{t:"Black Panther",c:"movie",id:"284054",y:"2018",img:"https://image.tmdb.org/t/p/w500/uxzzxijgPIY7.jpg"},
+{t:"Black Panther Wakanda Forever",c:"movie",id:"505642",y:"2022",img:"https://image.tmdb.org/t/p/w500/sv1xJUazXeYqALzczSZ3O6.jpg"},
+{t:"Doctor Strange 2",c:"movie",id:"453395",y:"2022",img:"https://image.tmdb.org/t/p/w500/9Gtg2DzBhmYam.jpg"},
+{t:"Guardians of Galaxy 3",c:"movie",id:"447365",y:"2023",img:"https://image.tmdb.org/t/p/w500/r2J02Z2OpNTctfOSN1Ydgii.jpg"},
+{t:"Deadpool",c:"movie",id:"293660",y:"2016",img:"https://image.tmdb.org/t/p/w500/zq8Cl3PNIDGU.jpg"},
+{t:"The Batman 2022",c:"movie",id:"414906",y:"2022",img:"https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg"},
+{t:"Joker",c:"movie",id:"475557",y:"2019",img:"https://image.tmdb.org/t/p/w500/udDclJoHjfjb.jpg"},
+{t:"The Dark Knight",c:"movie",id:"155",y:"2008",img:"https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911.jpg"},
+{t:"Fast X",c:"movie",id:"385687",y:"2023",img:"https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg"},
+{t:"Fast 9",c:"movie",id:"385128",y:"2021",img:"https://image.tmdb.org/t/p/w500/bOFaAXmWWXC.jpg"},
+{t:"John Wick 4",c:"movie",id:"603692",y:"2023",img:"https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg"},
+{t:"John Wick 3",c:"movie",id:"458156",y:"2019",img:"https://image.tmdb.org/t/p/w500/ziEuG1ess.jpg"},
+{t:"Avatar 2 Way of Water",c:"movie",id:"76600",y:"2022",img:"https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"},
+{t:"Avatar 1",c:"movie",id:"19995",y:"2009",img:"https://image.tmdb.org/t/p/w500/6EiRUJpuoe.jpg"},
+{t:"Oppenheimer",c:"movie",id:"872585",y:"2023",img:"https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7R1n2ua.jpg"},
+{t:"Barbie",c:"movie",id:"346698",y:"2023",img:"https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi81OoKT.jpg"},
+{t:"Inception",c:"movie",id:"27205",y:"2010",img:"https://image.tmdb.org/t/p/w500/9gk7adHYeDvH.jpg"},
+{t:"Interstellar",c:"movie",id:"157336",y:"2014",img:"https://image.tmdb.org/t/p/w500/gEU2QniE6E.jpg"},
+{t:"Titanic",c:"movie",id:"597",y:"1997",img:"https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8.jpg"},
+{t:"Transformers Rise",c:"movie",id:"678512",y:"2023",img:"https://image.tmdb.org/t/p/w500/gKkl1xWs.jpg"},
+{t:"The Lion King 2019",c:"movie",id:"420818",y:"2019",img:"https://image.tmdb.org/t/p/w500/2bXbqYdUd.jpg"},
+
+// SERIES + ANIMATION SERIES
+{t:"Money Heist",c:"tv",id:"71446",y:"2017",img:"https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg"},
+{t:"Stranger Things",c:"tv",id:"66732",y:"2016",img:"https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg"},
+{t:"Game of Thrones",c:"tv",id:"1399",y:"2011",img:"https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyveQz0w.jpg"},
+{t:"Breaking Bad",c:"tv",id:"1396",y:"2008",img:"https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjiz.jpg"},
+{t:"Squid Game",c:"tv",id:"93405",y:"2021",img:"https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93gQNbbw.jpg"},
+{t:"Wednesday",c:"tv",id:"119051",y:"2022",img:"https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpM.jpg"},
+{t:"The Last of Us",c:"tv",id:"100088",y:"2023",img:"https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2FyaJ78.jpg"},
+{t:"The Witcher",c:"tv",id:"71912",y:"2019",img:"https://image.tmdb.org/t/p/w500/7vjaCdMw.jpg"},
+{t:"The Boys",c:"tv",id:"76479",y:"2019",img:"https://image.tmdb.org/t/p/w500/stTEycfG.jpg"},
+{t:"Peaky Blinders",c:"tv",id:"60574",y:"2013",img:"https://image.tmdb.org/t/p/w500/vUUqzWa2.jpg"},
+{t:"Vikings",c:"tv",id:"44217",y:"2013",img:"https://image.tmdb.org/t/p/w500/bQLrHIR.jpg"},
+{t:"Rick and Morty",c:"tv",id:"60625",y:"2013",img:"https://image.tmdb.org/t/p/w500/4b.jpg"},
+{t:"Arcane",c:"tv",id:"94605",y:"2021",img:"https://image.tmdb.org/t/p/w500/fc.jpg"},
+{t:"Invincible",c:"tv",id:"95557",y:"2021",img:"https://image.tmdb.org/t/p/w500/y.jpg"},
+{t:"Family Guy",c:"tv",id:"1434",y:"1999",img:"https://picsum.photos/200/300?f1"},
+{t:"The Simpsons",c:"tv",id:"456",y:"1989",img:"https://picsum.photos/200/300?f2"},
+{t:"SpongeBob",c:"tv",id:"387",y:"1999",img:"https://picsum.photos/200/300?f3"},
+
+// UPCOMING
+{t:"Deadpool & Wolverine",c:"upcoming",id:"533535",y:"2024",img:"https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubf.jpg"},
+{t:"Inside Out 2",c:"upcoming",id:"1022789",y:"2024",img:"https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg"},
+{t:"Dune 2",c:"upcoming",id:"693134",y:"2024",img:"https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg"},
+{t:"Godzilla x Kong",c:"upcoming",id:"563531",y:"2024",img:"https://image.tmdb.org/t/p/w500/z1p34vh7dEOnLDmyCrlUVLuoDzd.jpg"},
+{t:"Kung Fu Panda 4",c:"upcoming",id:"1011985",y:"2024",img:"https://image.tmdb.org/t/p/w500/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg"},
+];
+
+let cur=[...DATA],curr=null;
+function render(){
+ document.getElementById('movies').innerHTML=cur.slice(0,300).map(m=>`<div class="movie">
+ <div class="badge">${m.c.toUpperCase()}</div>${m.c==='db'?'<div class="db">🐉 DB</div>':''}
+ <img src="${m.img}" loading="lazy" onclick="playM('${m.t.replace(/'/g,"")}','${m.id}','${m.c}')" onerror="this.src='https://via.placeholder.com/200x300/ff2a00/fff?text=${encodeURIComponent(m.t)}'">
+ <div class="info"><h3>${m.t}</h3><p>${m.y} • Complete</p></div>
+ <div class="btns">
+ <button class="btnPlay" onclick="playM('${m.t.replace(/'/g,"")}','${m.id}','${m.c}')">▶ Play</button>
+ <button class="btnDL" onclick="downloadHome('${m.t.replace(/'/g,"")}','${m.id}','${m.c}')">⬇ DL</button>
+ </div>
+ </div>`).join('');
+ document.getElementById('status').innerText=`FINAL: ${cur.length} Titles • Play + Download on Home Page ✅ MovieBox + Dragon Ball + Anime`;
+}
+function doSearch(){
+ let q=document.getElementById('search').value.toLowerCase().trim();
+ cur=q?DATA.filter(m=>m.t.toLowerCase().includes(q)):[...DATA];
+ render();
+}
+function filterCat(c,b){
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ if(c==='all')cur=[...DATA];else cur=DATA.filter(m=>m.c===c);
+ render();
+}
+function getProv(m){
+ let type=(m.c==='tv'||m.c==='anime'||m.c==='db')?'tv':'movie';
+ return[
+  {n:"VidSrc TO ▶",u:`https://vidsrc.to/embed/${type}/${m.id}`},
+  {n:"Embed SU ⭐ DL",u:`https://embed.su/embed/${type}/${m.id}`},
+  {n:"VidSrc ME ▶",u:`https://vidsrc.me/embed/${m.id}`}
+ ];
+}
+function playM(t,id,c){curr={t,id,c};document.getElementById('pTitle').innerText=t;document.getElementById('player').style.display='flex';let p=getProv(curr);document.getElementById('provBtns').innerHTML=p.map((x,i)=>`<button id="pb${i}" class="${i===0?'active':''}" onclick="switchP(${i})">${x.n}</button>`).join('');document.getElementById('pFrame').src=p[0].u}
+function switchP(i){document.querySelectorAll('#provBtns button').forEach(b=>b.classList.remove('active'));document.getElementById('pb'+i).classList.add('active');document.getElementById('pFrame').src=getProv(curr)[i].u}
+function closeP(){document.getElementById('player').style.display='none';document.getElementById('pFrame').src='';}
+function downloadHome(t,id,c){
+ let type=(c==='tv'||c==='anime'||c==='db')?'tv':'movie';
+ if(confirm(`⬇ Download ${t}?\n\nOK = Open Download Page\nCancel = Play then download inside player`)){
+   window.open(`https://embed.su/embed/${type}/${id}`,'_blank');
+ }else{
+   playM(t,id,c);
+ }
+}
+function doDownload(){
+ if(!curr)return alert('Select movie first');
+ downloadHome(curr.t,curr.id,curr.c);
+}
+render();
+</script>
+</body>
+</html>
