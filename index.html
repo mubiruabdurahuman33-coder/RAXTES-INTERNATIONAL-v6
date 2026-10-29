@@ -1,0 +1,95 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAXTES v46 GOOJARA STYLE</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0b0e14;color:#fff;font-family:Arial}
+.top{padding:14px 16px;display:flex;justify-content:space-between;position:sticky;top:0;background:#0b0e14;z-index:10;border-bottom:1px solid #1f2a44}
+.chips{display:flex;gap:8px;padding:10px 16px;overflow-x:auto}
+.chip{padding:8px 14px;background:#151b2a;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer}
+.chip.on{background:#fff;color:#000;font-weight:800}
+.row{display:flex;gap:10px;overflow-x:auto;padding:8px 16px 20px}
+.card{min-width:130px;width:130px;background:#151b2a;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid #1f2a44}
+.card img{width:100%;height:190px;object-fit:cover}
+.card .t{padding:6px;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{margin:10px 16px;background:#151b2a;border-radius:10px;padding:10px 14px;display:flex;gap:8px}
+.search input{flex:1;background:transparent;border:none;color:#fff;outline:none}
+.ad{margin:8px 16px;background:#151b2a;border:1px dashed #00e676;border-radius:8px;padding:8px;text-align:center;font-size:10px}
+</style>
+</head><body>
+<div class="top"><b>RAXTES <span style="color:#00e676">Box</span></b><span style="background:#00e676;color:#000;padding:4px 8px;border-radius:10px;font-size:9px">v46 GOOJARA 0755207966</span></div>
+<div class="ad">Monetag Zone: REPLACE_WITH_YOUR_ID to earn</div>
+<div class="search"><span>🔍</span><input id="q" placeholder="Search like Goojara - Avengers, John Wick..." oninput="searchM()"></div>
+<div class="chips">
+<div class="chip on" onclick="load('trending',this)">Trending</div>
+<div class="chip" onclick="load('now_playing',this)">Latest</div>
+<div class="chip" onclick="load('popular',this)">Popular</div>
+<div class="chip" onclick="load('top_rated',this)">Top Rated</div>
+<div class="chip" onclick="loadGenre(28,this)">Action</div>
+<div class="chip" onclick="loadGenre(27,this)">Horror</div>
+<div class="chip" onclick="loadGenre(16,this)">Anime</div>
+</div>
+<div id="home"></div>
+
+<script>
+// --- PATCH YOU ASKED FOR ---
+const CUSTOM_POSTS = [];
+try{
+ let a = JSON.parse(localStorage.getItem('raxtes_admin_custom')||'[]');
+ CUSTOM_POSTS.push(...a);
+}catch(e){}
+let CUSTOM=[]; // for old data
+// --- END PATCH ---
+
+const TMDB_KEY = "PUT_YOUR_TMDB_KEY_HERE"; // <--- PASTE KEY HERE
+const IMG = "https://image.tmdb.org/t/p/w500";
+
+async function fetchTMDB(url){
+ if(TMDB_KEY.includes("PUT_YOUR")){ // fallback to your static if no key yet
+   return {results:[
+    {id:299534,title:"Avengers Endgame",poster_path:"/or06FN3Dka5tukK1e9sl16pB3iy.jpg",release_date:"2019",genre_ids:[28]},
+    {id:533535,title:"Deadpool & Wolverine",poster_path:"/8cdWjvZQUExUUTzyp4t6EDMubf.jpg",release_date:"2024"},
+    {id:693134,title:"Dune Part Two",poster_path:"/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",release_date:"2024"},
+    {id:603692,title:"John Wick 4",poster_path:"/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg",release_date:"2023"}
+   ]};
+ }
+ let r = await fetch(url);
+ return await r.json();
+}
+
+async function load(type,el){
+ if(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+ let data = await fetchTMDB(`https://api.themoviedb.org/3/movie/${type}?api_key=${TMDB_KEY}`);
+ let all = CUSTOM_POSTS.concat(data.results);
+ render(all,type.toUpperCase());
+}
+async function loadGenre(gid,el){
+ if(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+ let data = await fetchTMDB(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_genres=${gid}&sort_by=popularity.desc`);
+ render(data.results,"Genre "+gid);
+}
+function render(list,title){
+ let h=document.getElementById('home');
+ h.innerHTML = `<div style="padding:12px 16px"><h3>${title} - ${list.length} Movies Like Goojara</h3></div>
+ <div class="row" style="flex-wrap:wrap">${list.map(m=>card(m)).join('')}</div>`;
+}
+function card(m){
+ let img = m.poster_path ? IMG+m.poster_path : m.img;
+ let title = m.title || m.t;
+ let year = (m.release_date||m.y||"").toString().slice(0,4);
+ let fb = "https://via.placeholder.com/130x190/151b2a/00e676?text="+encodeURIComponent(title.slice(0,8));
+ return `<div class="card" onclick="openDetails(${m.id})"><img src="${img}" onerror="this.src='${fb}'" loading="lazy"><div class="t">${title}</div><div style="padding:0 6px 6px;font-size:9px;color:#8a94a8">${year}</div></div>`;
+}
+function openDetails(id){
+ // Legal: Go to TMDB / trailer / JustWatch - not pirated player
+ let url = `https://www.themoviedb.org/movie/${id}`;
+ if(confirm("Open legal details page with trailer & where to watch? (Like Goojara but legal)")) window.open(url,"_blank");
+}
+async function searchM(){
+ let q=document.getElementById('q').value;
+ if(!q){load('trending');return}
+ let data = await fetchTMDB(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}`);
+ render(data.results,`Search "${q}"`);
+}
+
+load('trending');
+</script>
+</body></html>
